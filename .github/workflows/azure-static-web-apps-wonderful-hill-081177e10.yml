@@ -21,7 +21,7 @@ jobs:
           lfs: false
       - name: Set up Node.js # Required for React builds 
         uses: actions/setup-node@v3
-        with: node-version: 24 # Match your project's Node version 
+        with: node-version: 18 # Match your project's Node version 
               cache: 'npm' # Speeds up dependency installation 
       - name: Build And Deploy
         id: builddeploy
