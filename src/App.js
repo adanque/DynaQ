@@ -16,7 +16,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://dynaq.azurewebsites.net/api/dynaq_chat?code=jHyIcXcJmfAmF14uhBRevFHepTYr_fn4J6aLIP2edmD5AzFubs4mUA%3D%3D', {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=$${process.env.REACT_APP_AZURE_FUNCTION_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage.text }),
