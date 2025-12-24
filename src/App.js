@@ -5,7 +5,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const apikey = process.env.REACT_APP_AZURE_FUNCTION_KEY
   const handleSend = async (e) => {
     e.preventDefault(); // Prevent form submission reload
     if (!input.trim()) return;
@@ -16,7 +16,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=$${process.env.REACT_APP_AZURE_FUNCTION_KEY}`, {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage.text }),
