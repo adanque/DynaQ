@@ -20,9 +20,9 @@ function App() {
 
     try {
 
-      const response = await axios.post('https://dynaq.azurewebsites.net/api/dynaq_chat', { messages });
+      const response = await axios.post('https://dynaq.azurewebsites.net/api/dynaq_chat?code=jHyIcXcJmfAmF14uhBRevFHepTYr_fn4J6aLIP2edmD5AzFubs4mUA%3D%3D', { messages });
       // setReply(response.data.reply);      
-
+      // https://dynaq.azurewebsites.net/api/dynaq_chat?code=jHyIcXcJmfAmF14uhBRevFHepTYr_fn4J6aLIP2edmD5AzFubs4mUA%3D%3D
 
       // const response = await fetch('https://dynaq.azurewebsites.net/api/dynaq?code=QZA3J8KqSM86PwoXJJEBU5NcMB_QeOKT-NK3cy5ptCi0AzFu7SSnLQ%3D%3D&name=alan', {
       //   method: 'POST',
