@@ -37,7 +37,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Chatbot Interface</h1>
+      <h1>DynaQ Chat</h1>
       <div className="chat-window">
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.sender} fade-in`}>
