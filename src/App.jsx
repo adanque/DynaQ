@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import './App.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css'; // CSS import works directly in Vite
+import 'react-tabs/style/react-tabs.css';
+ // CSS import works directly in Vite
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
