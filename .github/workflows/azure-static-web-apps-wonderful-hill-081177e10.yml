@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js # Required for React builds 
         uses: actions/setup-node@v4
         with: 
-          node-version: 24.12.0 # Match your project's Node version 
+          node-version: '20.x' # Match your project's Node version 
           cache: 'npm' # Speeds up dependency installation 
       - name: Install dependencies
         run: npm install
