@@ -1,8 +1,47 @@
 // import logo from './logo.svg';
 import React, { useState } from 'react';
 import './App.css';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css'; // Basic styling for tabs
+import { Line } from 'react-chartjs-2'; // For analytics chart
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
 
 function App() {
+  // Sample data for analytics chart
+  const chartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+    datasets: [
+      {
+        label: 'User Visits',
+        data: [65, 59, 80, 81, 56],
+        borderColor: 'rgba(75,192,192,1)',
+        backgroundColor: 'rgba(75,192,192,0.2)',
+      },
+    ],
+  };
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -36,29 +75,80 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>Chatbot Interface</h1>
-      <div className="chat-window">
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.sender} fade-in`}>
-            {msg.text}
-          </div>
-        ))}
-        {isLoading && <div className="loading">Bot is thinking...</div>}
-      </div>
-      <div className="input-area">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type your message..."
-          disabled={isLoading}
-        />
-        <button onClick={handleSend} disabled={isLoading || !input.trim()}>
-          ➤
-        </button>
-      </div>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      <h1>Multi-Tab Content Delivery App</h1>
+      <Tabs>
+        <TabList>
+          <Tab>Chat Bot</Tab>
+          <Tab>Readme Materials</Tab>
+          <Tab>Analytics Dashboard</Tab>
+          <Tab>Forum</Tab>
+        </TabList>
+
+
+        <TabPanel>
+		  <h2>Chatbot Interface</h2>
+		  <div className="chat-window">
+			{messages.map((msg, index) => (
+			  <div key={index} className={`message ${msg.sender} fade-in`}>
+				{msg.text}
+			  </div>
+			))}
+			{isLoading && <div className="loading">Bot is thinking...</div>}
+		  </div>
+		  <div className="input-area">
+			<input
+			  type="text"
+			  value={input}
+			  onChange={(e) => setInput(e.target.value)}
+			  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+			  placeholder="Type your message..."
+			  disabled={isLoading}
+			/>
+			<button onClick={handleSend} disabled={isLoading || !input.trim()}>
+			  ➤
+			</button>
+		  </div>
+        </TabPanel>
+
+
+        <TabPanel>
+          <h2>Readme Materials</h2>
+          <p>This tab shares static README content. Below is an example markdown-rendered as text:</p>
+          <pre style={{ background: '#f4f4f4', padding: '10px' }}>
+            # Project README
+            ## Overview
+            This is a sample project.
+            ## Installation
+            1. Clone the repo
+            2. Run `npm install`
+            3. Start with `npm start`
+          </pre>
+        </TabPanel>
+
+
+        <TabPanel>
+          <h2>Analytics Dashboard</h2>
+          <p>Static chart showing sample user data.</p>
+          <Line data={chartData} options={{ responsive: true }} />
+        </TabPanel>
+
+
+        <TabPanel>
+          <h2>Forum</h2>
+          <p>Static forum posts example (add dynamic features with a backend if needed).</p>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            <li>
+              <strong>Post 1:</strong> How do I get started? <br />
+              <em>Reply: Check the README tab.</em>
+            </li>
+            <li>
+              <strong>Post 2:</strong> Feature request: Add more charts. <br />
+              <em>Reply: Noted, thanks!</em>
+            </li>
+          </ul>
+        </TabPanel>
+      </Tabs>
     </div>
   );
 }
