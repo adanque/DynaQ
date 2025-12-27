@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
@@ -33,6 +34,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   // const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY
   const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY;
+
+  // New state for RAG upload
+  const [pdfFile, setPdfFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [ragResponse, setRagResponse] = useState('');
 
   // Sample data for analytics chart
   const chartData = {
@@ -78,12 +84,74 @@ function App() {
     }
   };
 
+
+
+  // Existing useEffect for mobile detection
+  useEffect(() => {
+    const mobileCheck = /Mobi|Android/i.test(navigator.userAgent);
+    setIsMobile(mobileCheck);
+
+
+    if (mobileCheck && document.documentElement.requestFullscreen) {
+      setTimeout(() => {
+        document.documentElement.requestFullscreen().catch((err) => console.log('Full-screen request failed:', err));
+      }, 1000);
+    }
+  }, []);
+
+
+  // New handler for PDF upload
+  const handlePdfUpload = async () => {
+    if (!pdfFile) {
+      setUploadStatus('Please select a PDF file.');
+      return;
+    }
+
+
+    setUploadStatus('Uploading...');
+    const formData = new FormData();
+    formData.append('pdf', pdfFile); // 'pdf' is the key expected by your backend
+
+
+    try {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_chat?code=${apikey}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+
+      const data = await response.json(); // Assume backend returns JSON with 'response' field
+      setRagResponse(data.response || 'RAG processing complete.');
+      setUploadStatus('Upload successful!');
+      setQuestion(''); // Optional: Clear question after success
+    } catch (error) {
+      setUploadStatus('Error: ' + error.message);
+      setRagResponse('');
+    }
+  };  
+
+  // Existing toggleFullScreen
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => console.log('Full-screen request failed:', err));
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <h1>DynaQ Tools</h1>
       <Tabs>
         <TabList>
           <Tab>Have a Question?</Tab>
+          <Tab>Have a Rag Question?</Tab>
           <Tab>FAQ</Tab>
           <Tab>Analytics Dashboard</Tab>
           <Tab>Forum</Tab>
@@ -116,6 +184,47 @@ function App() {
           </div>
         </TabPanel>
 
+        <TabPanel>
+          <div className="RagApp">
+            <h1>DynaQ Chat using RAG</h1>
+            <p>Upload a PDF and optionally provide a question to process with a backend RAG model.</p>            
+            <div className="chat-window">
+              {messages.map((msg, index) => (
+                <div key={index} className={`message ${msg.sender} fade-in`}>
+                  {msg.text}
+                </div>
+              ))}
+              {isLoading && <div className="loading">Bot is thinking...</div>}
+            </div>
+            <form onSubmit={handleSend} className="input-area">
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                style={{ margin: '10px 0', display: 'block' }}
+              />              
+              <input
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="Enter a question (optional)"
+                style={{ margin: '10px 0', width: '100%' }}
+                disabled={isLoading}
+              />
+              {/* <button type="submit" disabled={isLoading || !input.trim()}>
+                ➤
+              </button> */}
+              <button onClick={handlePdfUpload}>Upload PDF and Process</button>
+              {uploadStatus && <p>{uploadStatus}</p>}
+              {ragResponse && (
+                <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
+                  <h3>RAG Response:</h3>
+                  <p>{ragResponse}</p>
+                </div>
+              )}
+            </form>
+          </div>
+        </TabPanel>
 
         <TabPanel>
           <h2>Readme Materials</h2>
