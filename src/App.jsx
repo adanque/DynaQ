@@ -121,8 +121,11 @@ function App() {
     try {
       const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apikey}`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: formData }),
       });
+        // method: 'POST',
+        // body: formData,
 
 
       if (!response.ok) {
