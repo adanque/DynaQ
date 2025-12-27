@@ -29,6 +29,7 @@ ChartJS.register(
 
 
 function App() {
+  const [selectedTab, setSelectedTab] = useState(0); // Defaults to first tab
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -152,10 +153,16 @@ function App() {
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <h1>DynaQ Tools</h1>
-      <Tabs>
+      {isMobile && (
+        <button onClick={toggleFullScreen} style={{ marginBottom: '10px' }}>
+          Toggle Full Screen
+        </button>
+      )}      
+      <Tabs selectedIndex={selectedTab} onSelect={(index) => setSelectedTab(index)}>
         <TabList>
           <Tab>Have a Question?</Tab>
           <Tab>Have a Rag Question?</Tab>
+          <Tab>Have a Rag Question 2?</Tab>
           <Tab>FAQ</Tab>
           <Tab>Analytics Dashboard</Tab>
           <Tab>Forum</Tab>
@@ -227,7 +234,7 @@ function App() {
               {/* <button type="submit" disabled={isLoading || !input.trim()}>
                 ➤
               </button> */}
-              <button onClick={handlePdfUpload}>Upload PDF and Process</button>
+              <button onClick={handlePdfUpload}>Upload and Process</button>
               {uploadStatus && <p>{uploadStatus}</p>}
               {/* {ragResponse && (
                 <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
@@ -237,6 +244,32 @@ function App() {
               )} */}
             </form>
           </div>
+        </TabPanel>
+
+        <TabPanel>
+          <h2>RAG PDF Upload Example 2</h2>
+          <p>Upload a PDF and optionally provide a question to process with a backend RAG model.</p>
+          <input
+            type="file"
+            accept=".pdf"
+            onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+            style={{ margin: '10px 0', display: 'block' }}
+          />
+          <input
+            type="text"
+            value={question} // References 'question' state here
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Enter a question (optional)"
+            style={{ margin: '10px 0', width: '100%' }} // New input for question
+          />
+          <button onClick={handlePdfUpload}>Upload PDF and Process</button>
+          {uploadStatus && <p>{uploadStatus}</p>}
+          {ragResponse && (
+            <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
+              <h3>RAG Response:</h3>
+              <p>{ragResponse}</p>
+            </div>
+          )}
         </TabPanel>
 
         <TabPanel>
