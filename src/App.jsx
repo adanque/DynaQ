@@ -118,7 +118,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_chat?code=${apikey}`, {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apikey}`, {
         method: 'POST',
         body: formData,
       });
