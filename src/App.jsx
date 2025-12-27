@@ -32,11 +32,13 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);  
   // const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY
   const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY;
 
   // New state for RAG upload
   const [pdfFile, setPdfFile] = useState(null);
+  const [question, setQuestion] = useState(''); // This declares 'question' – critical fix if missing
   const [uploadStatus, setUploadStatus] = useState('');
   const [ragResponse, setRagResponse] = useState('');
 
@@ -110,8 +112,10 @@ function App() {
 
     setUploadStatus('Uploading...');
     const formData = new FormData();
-    formData.append('pdf', pdfFile); // 'pdf' is the key expected by your backend
-
+    formData.append('pdf', pdfFile); // File upload
+    if (question.trim()) {
+      formData.append('question', question); // Append question as a string field
+    }
 
     try {
       const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_chat?code=${apikey}`, {
@@ -189,20 +193,29 @@ function App() {
             <h1>DynaQ Chat using RAG</h1>
             <p>Upload a PDF and optionally provide a question to process with a backend RAG model.</p>            
             <div className="chat-window">
-              {messages.map((msg, index) => (
+              {ragResponse && (
+                <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
+                  <h3>RAG Response:</h3>
+                  <p>{ragResponse}</p>
+                </div>
+              )}
+
+              {/* {messages.map((msg, index) => (
                 <div key={index} className={`message ${msg.sender} fade-in`}>
                   {msg.text}
                 </div>
-              ))}
+              ))} */}
               {isLoading && <div className="loading">Bot is thinking...</div>}
             </div>
-            <form onSubmit={handleSend} className="input-area">
+            <form className="input-area">
               <input
                 type="file"
                 accept=".pdf"
                 onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
                 style={{ margin: '10px 0', display: 'block' }}
               />              
+            </form>
+            <form className="input-area">                          
               <input
                 type="text"
                 value={question}
@@ -216,12 +229,12 @@ function App() {
               </button> */}
               <button onClick={handlePdfUpload}>Upload PDF and Process</button>
               {uploadStatus && <p>{uploadStatus}</p>}
-              {ragResponse && (
+              {/* {ragResponse && (
                 <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
                   <h3>RAG Response:</h3>
                   <p>{ragResponse}</p>
                 </div>
-              )}
+              )} */}
             </form>
           </div>
         </TabPanel>
