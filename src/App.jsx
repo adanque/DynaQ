@@ -103,7 +103,7 @@ function App() {
     }
   }, []);
 
-
+ 
   // New handler for PDF upload
   const handlePdfUpload = async () => {
     if (!pdfFile) {
@@ -119,8 +119,15 @@ function App() {
       formData.append('question', question); // Append question as a string field
     }
 
+      // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ message: userMessage.text }),
+      // });
+
+// const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {      
     try {
-      // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {      
+
       const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {
         method: 'POST',
         body: formData,        
