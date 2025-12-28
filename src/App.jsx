@@ -36,6 +36,7 @@ function App() {
   const [isMobile, setIsMobile] = useState(false);  
   // const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY
   const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY;
+  const apiragkey = import.meta.env.VITE_AZURE_FUNCTION_RAG_KEY;
 
   // New state for RAG upload
   const [pdfFile, setPdfFile] = useState(null);
@@ -119,13 +120,15 @@ function App() {
     }
 
     try {
-      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apikey}`, {
+      // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {      
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: formData }),
+        body: formData,        
       });
+
         // method: 'POST',
-        // body: formData,
+        // headers: { 'Content-Type': 'application/json' },
+        // body: JSON.stringify({ message: formData }),
 
 
       if (!response.ok) {
