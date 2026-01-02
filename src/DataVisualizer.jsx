@@ -59,7 +59,7 @@ const DataVisualizer = () => {
             labels: metricsArray.map(item => item[firstKeyName]),
             datasets: [{
             //   label: 'Performance Metrics',
-              label: `Current Performance Metric: ${activeMetric}`,
+              label: `Current ${firstKeyName} Performance Metric: ${activeMetric}`,
             //   data: metricsArray.map(item => item.value),
               data: metricsArray.map(item => Number(item[activeMetric])),
               backgroundColor: 'rgba(75, 192, 192, 0.6)',
@@ -89,7 +89,7 @@ const DataVisualizer = () => {
       const formattedData = {
         labels: metricsArray.map(item => item[firstKeyName]),
         datasets: [{
-          label: `Current Performance Metric: ${activeMetric}`,
+          label: `Current ${firstKeyName} Performance Metric: ${activeMetric}`,
           data: metricsArray.map(item => Number(item[activeMetric])),
           backgroundColor: 'rgba(75, 192, 192, 0.6)',
           borderColor: 'rgba(75, 192, 192, 1)',
@@ -118,7 +118,7 @@ const DataVisualizer = () => {
       },
       title: {
         display: true,
-        text: 'Dynamic Data Visualization served from Azure Function',
+        text: 'Dynamic Data Visualization of AI Powered Extraction Performance Metrics',
       },
     },
   };
