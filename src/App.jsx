@@ -1,9 +1,15 @@
+// npm install axios chart.js react-chartjs-2
+console.log("Server is starting up!");
 // import { useState } from 'react';
 import { useState, useEffect } from 'react';
+import DataVisualizer from './DataVisualizer';
 import './App.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
  // CSS import works directly in Vite
+
+import axios from 'axios';
+
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -29,11 +35,22 @@ ChartJS.register(
 
 
 function App() {
+  // console.error('testing error message to console');
+  const [visualization, setVisualization] = useState(null); // Will hold chart data or table JSX
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [selectedTab, setSelectedTab] = useState(0); // Defaults to first tab
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);  
+
+  // Dynamic Query Data
+  const [chartData, setChartData] = useState([]);
+  // const [chartData, setChartData] = useState(null);
+  
+
   // const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY
   const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY;
   const apiragkey = import.meta.env.VITE_AZURE_FUNCTION_RAG_KEY;
@@ -45,7 +62,7 @@ function App() {
   const [ragResponse, setRagResponse] = useState('');
 
   // Sample data for analytics chart
-  const chartData = {
+  const chartSData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
     datasets: [
       {
@@ -56,7 +73,22 @@ function App() {
       },
     ],
   };
- 
+
+  // Render function for table (dynamic)
+  const renderTable = ({ headers, rows }) => (
+    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <thead>
+        <tr>{headers.map(header => <th key={header} style={{ border: '1px solid #ddd', padding: '8px' }}>{header}</th>)}</tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {headers.map(header => <td key={header} style={{ border: '1px solid #ddd', padding: '8px' }}>{row[header]}</td>)}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );  
 
   const handleSend = async (e) => {
     e.preventDefault(); // Prevent form submission reload
@@ -162,6 +194,7 @@ function App() {
     }
   };
 
+  // if (loading) return <p>Loading...</p>;
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
@@ -173,15 +206,50 @@ function App() {
       )}      
       <Tabs selectedIndex={selectedTab} onSelect={(index) => setSelectedTab(index)}>
         <TabList>
-          <Tab>Have a Question?</Tab>
-          <Tab>Have a Rag Question?</Tab>
-          <Tab>Have a Rag Question 2?</Tab>
-          <Tab>FAQ</Tab>
           <Tab>Analytics Dashboard</Tab>
+          <Tab>Would you like to Chat?</Tab>
+          <Tab>Have a Rag Question?</Tab>
+          <Tab>FAQ</Tab>
           <Tab>Forum</Tab>
         </TabList>
 
 
+        <TabPanel>
+          <h1>Dynamic Data Dashboards</h1>
+            <div className="App">
+                  <header className="App-header">
+                    <h1>Chart Data from SQLite</h1>
+                  </header>
+                  <main>
+                    <DataVisualizer/>
+                  </main>
+            </div>          
+            {/* <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+              <h1>Dynamic Metrics Dashboard</h1>
+              {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+              {loading ? (
+                <p>Loading data...</p>
+              ) : visualization ? (
+                visualization.type === 'chart' ? (
+                  <Bar
+                    data={visualization.data}
+                    options={{
+                      responsive: true,
+                      plugins: { legend: { position: 'top' }, title: { display: true, text: 'Dynamic Metrics' } },
+                    }}
+                  />
+                ) : (
+                  renderTable(visualization)
+                )
+              ) : (
+                <p>No suitable data for visualization.</p>
+              )}
+            </div>           */}
+
+          <h2>Analytics Dashboard</h2>
+          <p>Static chart showing sample user data.</p>
+          <Line data={chartSData} options={{ responsive: true }} />
+        </TabPanel>
         <TabPanel>
           <div className="App">
             <h1>DynaQ Chat</h1>
@@ -207,60 +275,9 @@ function App() {
             </form>
           </div>
         </TabPanel>
-
+        
         <TabPanel>
-          <div className="RagApp">
-            <h1>DynaQ Chat using RAG</h1>
-            <p>Upload a PDF and optionally provide a question to process with a backend RAG model.</p>            
-            <div className="chat-window">
-              {ragResponse && (
-                <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
-                  <h3>RAG Response:</h3>
-                  <p>{ragResponse}</p>
-                </div>
-              )}
-
-              {/* {messages.map((msg, index) => (
-                <div key={index} className={`message ${msg.sender} fade-in`}>
-                  {msg.text}
-                </div>
-              ))} */}
-              {isLoading && <div className="loading">Bot is thinking...</div>}
-            </div>
-            <form className="input-area">
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-                style={{ margin: '10px 0', display: 'block' }}
-              />              
-            </form>
-            <form className="input-area">                          
-              <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Enter a question (optional)"
-                style={{ margin: '10px 0', width: '100%' }}
-                disabled={isLoading}
-              />
-              {/* <button type="submit" disabled={isLoading || !input.trim()}>
-                ➤
-              </button> */}
-              <button onClick={handlePdfUpload}>Upload and Process</button>
-              {uploadStatus && <p>{uploadStatus}</p>}
-              {/* {ragResponse && (
-                <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
-                  <h3>RAG Response:</h3>
-                  <p>{ragResponse}</p>
-                </div>
-              )} */}
-            </form>
-          </div>
-        </TabPanel>
-
-        <TabPanel>
-          <h2>RAG PDF Upload Example 2</h2>
+          <h2>RAG PDF Upload Example</h2>
           <p>Upload a PDF and optionally provide a question to process with a backend RAG model.</p>
           <input
             type="file"
@@ -287,25 +304,19 @@ function App() {
 
         <TabPanel>
           <h2>Readme Materials</h2>
-          <p>This tab shares static README content. Below is an example markdown-rendered as text:</p>
-          <pre style={{ background: '#f4f4f4', padding: '10px' }}>
+          <p>This tab shares static README content.</p> 
+          <p>Below is an example markdown-rendered as text:</p>
+          <pre style={{ background: '#f4f4f4', padding: '5px' }}>
             # Project README
             ## Overview
-            This is a sample project.
-            ## Installation
-            1. Clone the repo
-            2. Run `npm install`
-            3. Start with `npm run dev`
+            <ul>This is a sample project.</ul>
+            <ul>## Installation</ul>
+            <ul>1. Clone the repo</ul>
+            <ul>2. Run `npm install`</ul>
+            <ul>3. Start with `npm run dev`</ul>
+            
           </pre>
         </TabPanel>
-
-
-        <TabPanel>
-          <h2>Analytics Dashboard</h2>
-          <p>Static chart showing sample user data.</p>
-          <Line data={chartData} options={{ responsive: true }} />
-        </TabPanel>
-
 
         <TabPanel>
           <h2>Forum</h2>

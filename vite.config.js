@@ -11,6 +11,9 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    dedupe: ['react', 'react-dom'], // Forces a single React instance
+  }  
 })
 
 
