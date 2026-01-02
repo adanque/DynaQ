@@ -1,5 +1,5 @@
 // npm install axios chart.js react-chartjs-2
-console.log("Server is starting up!");
+// console.log("Server is starting up!");
 // import { useState } from 'react';
 import { useState, useEffect } from 'react';
 import DataVisualizer from './DataVisualizer';

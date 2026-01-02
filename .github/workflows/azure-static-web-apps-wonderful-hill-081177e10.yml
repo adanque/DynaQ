@@ -35,6 +35,7 @@ jobs:
           # REACT_APP_AZURE_FUNCTION_KEY: ${{ secrets.AZURE_FUNCTION_KEY }} # Maps secret to env var
           VITE_AZURE_FUNCTION_KEY: ${{ secrets.VITE_AZURE_FUNCTION_KEY }}
           VITE_AZURE_FUNCTION_RAG_KEY: ${{ secrets.VITE_AZURE_FUNCTION_RAG_KEY }}
+          VITE_AZURE_FUNCTION_SQLDATA_KEY: ${{ secrets.VITE_AZURE_FUNCTION_SQLDATA_KEY }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_HILL_081177E10 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)

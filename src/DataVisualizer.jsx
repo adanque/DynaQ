@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useMemo } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
-// Register necessary Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -16,18 +14,17 @@ ChartJS.register(
 const DataVisualizer = () => {
   // State for the fetched data and loading status
   const [chartData, setChartData] = useState(null);
+  const [metricsArray, setMetricsArray] = useState(null);
   const [activeMetric, setActiveMetric] = useState('min_dur');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const apidatakey = import.meta.env.VITE_AZURE_FUNCTION_SQLDATA_KEY;  
+  const functionUrl = `https://dynaq.azurewebsites.net/api/dynaq_chart_data?code=${apidatakey}`; 
 
-  // Define the URL of your Azure Function
-  // If running locally, this might be 'http://localhost:7071/api/data'
-  // When deployed, it will be 'https://<your-function-app-name>.azurewebsites.net/api/data'
-  const functionUrl = 'https://dynaq.azurewebsites.net/api/dynaq_chart_data?code=hQ0suSQXjCFo9YP65-67b3ibqRFSPtwereEfEfZkorWSAzFu2UEryQ%3D%3D'; 
 
   const handleMetricChange = (e) => {
     const newValue = e.target.value;
-    console.log("Setting metric to:", newValue); // Check your console for this!
+    // console.log("Setting metric to:", newValue); // Check your console for this!
     setActiveMetric(newValue);
     };
 
@@ -40,37 +37,26 @@ const DataVisualizer = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
-        console.log("result: ", result)
+        // console.log("result: ", result)
 
         let metricsArray = result; // Default to the root if it's already an array
         if (!Array.isArray(result) && result && Array.isArray(result.chartData)) {
           metricsArray = result.chartData; // Pull from the wrapper key
         }
-        console.log("activeMetric for chart:", activeMetric)
-        // console.log("metricsArray: ", metricsArray)
-        // Format the data for Chart.js
-        // const formattedData = useMemo(() => {
-        //     return {
-        // //   labels: metricsArray.map(item => item.label),
-        //         labels: metricsArray.map(item => item.base_path),
-        //         datasets: [{
-        //         //   label: 'Performance Metrics',
-        //         label: `Current Performance Metric: ${activeMetric}`,
-        //         //   data: metricsArray.map(item => item.value),
-        //         data: metricsArray.map(item => Number(item[activeMetric])),
-        //         backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        //         borderColor: 'rgba(75, 192, 192, 1)',
-        //         borderWidth: 1,
-        //         minBarLength: 5,
-        //     },
-        //      ],
-        //   };
-        // }, [metricsArray, activeMetric]);
+        // console.log("activeMetric for chart:", activeMetric)
 
+
+        const firstObject = metricsArray[0];
+        const firstKeyName = Object.keys(firstObject)[0]; 
+        // console.log("data first element name: ", firstKeyName);
+        const SecondKeyName = Object.keys(firstObject)[1]; 
+        // console.log("data second element name: ", SecondKeyName);
+
+        setMetricsArray(metricsArray);
+        setActiveMetric(SecondKeyName);
 
         const formattedData = {
-        //   labels: metricsArray.map(item => item.label),
-            labels: metricsArray.map(item => item.base_path),
+            labels: metricsArray.map(item => item[firstKeyName]),
             datasets: [{
             //   label: 'Performance Metrics',
               label: `Current Performance Metric: ${activeMetric}`,
@@ -93,7 +79,27 @@ const DataVisualizer = () => {
     };
 
     fetchData();
-  }, []); // Empty dependency array means this runs once when the component mounts
+  }, []); // runs once when the component mounts
+   
+
+  // second effect so to update chart when activeMetric changes
+  useEffect(() => {
+    if (metricsArray) {
+      const firstKeyName = Object.keys(metricsArray[0])[0];
+      const formattedData = {
+        labels: metricsArray.map(item => item[firstKeyName]),
+        datasets: [{
+          label: `Current Performance Metric: ${activeMetric}`,
+          data: metricsArray.map(item => Number(item[activeMetric])),
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+          minBarLength: 5,
+        }],
+      };
+      setChartData(formattedData);
+    }
+  }, [activeMetric, metricsArray]);
 
   if (loading) {
     return <div>Loading visualization data...</div>;
@@ -121,17 +127,8 @@ const DataVisualizer = () => {
 
   return (
     <div  style={{ height: '400px', position: 'relative' }}>
-      {/* Dropdown to specify the vertical axis field */}
-      {/* <select onChange={(e) => setActiveMetric(e.target.value)} value={"max_dur"}> */}
         <select 
                 value={activeMetric} onChange={handleMetricChange}
-                // onChange={(e) => setActiveMetric(e.target.value)}
-                // onChange={(e) => {
-                //     const newValue = e.target.value;
-                //     console.log("Selected Metric:", newValue); // Log to verify update
-                //     console.log("Active Metric:", activeMetric);
-                //     setActiveMetric(newValue);
-                // }}                
             >
         <option value="cnt">Counts</option>
         <option value="min_dur">Min Duration</option>
@@ -139,10 +136,6 @@ const DataVisualizer = () => {
       </select>
       {chartData ? <Bar key={activeMetric} options={options} data={chartData} redraw={true} />: <p>No data to display.</p>}
     </div>    
-    // <div style={{ width: '600px', margin: 'auto' }}>
-    //   <h2>Data Dashboard</h2>
-    //   {chartData ? <Bar options={options} data={chartData} /> : <p>No data to display.</p>}
-    // </div>
   );
 };
 
