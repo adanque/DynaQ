@@ -35,8 +35,8 @@ const DataVisualizer = () => {
   const [dateColumn, setDateColumn] = useState('');
   const [availableMetrics, setAvailableMetrics] = useState([]);
   const apidatakey = import.meta.env.VITE_AZURE_FUNCTION_SQLDATA_KEY;  
-  // const functionUrl = `https://dynaq.azurewebsites.net/api/dynaq_chart_data?code=${apidatakey}`;
-  const functionUrl = 'http://localhost:7071/api/dynaq_chart_data';
+  const functionUrl = `https://dynaq.azurewebsites.net/api/dynaq_chart_data?code=${apidatakey}`;
+  // const functionUrl = 'http://localhost:7071/api/dynaq_chart_data';
   
 
   const handleMetricChange = (e) => {
