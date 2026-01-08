@@ -1,24 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-// import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-
-// import { Bar } from 'react-chartjs-2';
-import { Line } from 'react-chartjs-2';
-
-// ChartJS.register(
-//   CategoryScale,
-//   LinearScale,
-//   BarElement,
-//   Title,
-//   Tooltip,
-//   Legend
-// );
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -33,7 +20,7 @@ const DataVisualizer = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [dateColumn, setDateColumn] = useState('');
-  const [availableMetrics, setAvailableMetrics] = useState([]);
+  
   const apidatakey = import.meta.env.VITE_AZURE_FUNCTION_SQLDATA_KEY;  
   // const functionUrl = `https://dynaq.azurewebsites.net/api/dynaq_chart_data?code=${apidatakey}`;
   const functionUrl = 'http://localhost:7071/api/dynaq_chart_data';
@@ -57,8 +44,6 @@ const DataVisualizer = () => {
   const filteredMetricsArray = useMemo(() => {
     if (!metricsArray || !dateColumn) return metricsArray;
     if (!startDate && !endDate) return metricsArray;
-
-
 
     return metricsArray.filter(item => {
       const itemDate = new Date(item[dateColumn]);
@@ -103,13 +88,7 @@ const DataVisualizer = () => {
           key.toLowerCase().includes('proc_date')
         );
 
-        // console.log("keys: ", keys)
-        // Metrics are all numeric keys, excluding the label and date columns
-        const metricKeys = keys.filter(key => 
-          key !== firstKeyName && key !== dateCol
-        );
-        
-        setAvailableMetrics(metricKeys);        
+        console.log("keys: ", keys)
         
         if (dateCol) {
           setDateColumn(dateCol);
@@ -135,83 +114,23 @@ const DataVisualizer = () => {
   }, [functionUrl]);
 
   // Update chart when activeMetric or filtered data changes
-  // useEffect(() => {
-  //   if (filteredMetricsArray && filteredMetricsArray.length > 0) {
-  //     const firstKeyName = Object.keys(filteredMetricsArray[0])[0];
-  //     const formattedData = {
-  //       labels: filteredMetricsArray.map(item => item[firstKeyName]),
-  //           datasets: [{
-  //             label: `Current ${firstKeyName} Performance Metric: ${activeMetric}`,
-  //             data: filteredMetricsArray.map(item => Number(item[activeMetric])),
-  //             backgroundColor: 'rgba(75, 192, 192, 0.6)',
-  //             borderColor: 'rgba(75, 192, 192, 1)',
-  //             borderWidth: 1,
-  //             minBarLength: 5,
-  //             tension: 0.4,
-  //             fill: false,
-  //           }],        
-  //       // datasets: [{
-  //       //   label: `Current ${firstKeyName} Performance Metric: ${activeMetric}`,
-  //       //   data: filteredMetricsArray.map(item => Number(item[activeMetric])),
-  //       //   backgroundColor: 'rgba(75, 192, 192, 0.6)',
-  //       //   borderColor: 'rgba(75, 192, 192, 1)',
-  //       //   borderWidth: 1,
-  //       //   minBarLength: 5,
-  //       // }],
-  //     };
-  //     setChartData(formattedData);
-  //   }
-  // }, [activeMetric, filteredMetricsArray]);
-
-// Replace the existing effect that builds chartData with this:
   useEffect(() => {
-    if (!filteredMetricsArray || filteredMetricsArray.length === 0) {
-      setChartData(null);
-      return;
-    }
-
-    const labelKey = Object.keys(filteredMetricsArray[0])[0]; // e.g. base_path or similar
-    const dateKey = dateColumn || 'date_proc'; // use detected date column or fallback to 'date_proc'
-
-    // unique, sorted dates (use ISO date string for consistent matching)
-    const uniqueDates = Array.from(new Set(
-      filteredMetricsArray.map(i => new Date(i[dateKey]).toISOString().split('T')[0])
-    )).sort((a, b) => new Date(a) - new Date(b));
-
-    // unique series names (full label text)
-    const seriesNames = Array.from(new Set(filteredMetricsArray.map(i => i[labelKey])));
-
-    // basic color palette (expand if needed)
-    const colors = [
-      '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-      '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
-    ];
-
-    // build datasets: for each series, map values onto the master date axis
-    const datasets = seriesNames.map((name, idx) => {
-      const data = uniqueDates.map(d => {
-        const found = filteredMetricsArray.find(item =>
-          item[labelKey] === name &&
-          new Date(item[dateKey]).toISOString().split('T')[0] === d
-        );
-        return found ? Number(found[activeMetric]) : null;
-      });
-
-      return {
-        label: name,                // legend shows full label name
-        data,
-        borderColor: colors[idx % colors.length],
-        backgroundColor: colors[idx % colors.length] + '33',
-        tension: 0.3,
-        spanGaps: true,             // connect points across nulls if you prefer
-        fill: false,
-        pointRadius: 3,
+    if (filteredMetricsArray && filteredMetricsArray.length > 0) {
+      const firstKeyName = Object.keys(filteredMetricsArray[0])[0];
+      const formattedData = {
+        labels: filteredMetricsArray.map(item => item[firstKeyName]),
+        datasets: [{
+          label: `Current ${firstKeyName} Performance Metric: ${activeMetric}`,
+          data: filteredMetricsArray.map(item => Number(item[activeMetric])),
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+          minBarLength: 5,
+        }],
       };
-    });
-
-    setChartData({ labels: uniqueDates, datasets });
-  }, [activeMetric, filteredMetricsArray, dateColumn]);
-
+      setChartData(formattedData);
+    }
+  }, [activeMetric, filteredMetricsArray]);
 
   if (loading) {
     return (
@@ -282,6 +201,156 @@ const DataVisualizer = () => {
             Performance Dashboard
           </h1>
           
+          {/* Controls Section */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: dateColumn ? 'repeat(auto-fit, minmax(200px, 1fr))' : '1fr',
+            gap: '16px',
+            marginBottom: '20px'
+          }}>
+            {/* Metric Selector */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label style={{ 
+                fontSize: '14px', 
+                fontWeight: '600', 
+                color: '#555',
+                marginBottom: '8px'
+              }}>
+                Select Metric
+              </label>
+              <select 
+                value={activeMetric} 
+                onChange={handleMetricChange}
+                style={{
+                  padding: '10px 12px',
+                  border: '2px solid #ddd',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'all 0.2s',
+                  backgroundColor: 'white'
+                }}
+                onMouseOver={(e) => e.target.style.borderColor = '#20b2aa'}
+                onMouseOut={(e) => e.target.style.borderColor = '#ddd'}
+                onFocus={(e) => e.target.style.borderColor = '#20b2aa'}
+                onBlur={(e) => e.target.style.borderColor = '#ddd'}
+              >
+                <option value="cnt">Counts</option>
+                <option value="min_dur">Min Duration</option>
+                <option value="max_dur">Max Duration</option>
+              </select>
+            </div>
+
+            {/* Date Range Pickers */}
+            {dateColumn && (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#555',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#20b2aa" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    style={{
+                      padding: '10px 12px',
+                      border: '2px solid #ddd',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      outline: 'none',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => e.target.style.borderColor = '#20b2aa'}
+                    onMouseOut={(e) => e.target.style.borderColor = '#ddd'}
+                    onFocus={(e) => e.target.style.borderColor = '#20b2aa'}
+                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#555',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#20b2aa" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    style={{
+                      padding: '10px 12px',
+                      border: '2px solid #ddd',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      outline: 'none',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => e.target.style.borderColor = '#20b2aa'}
+                    onMouseOut={(e) => e.target.style.borderColor = '#ddd'}
+                    onFocus={(e) => e.target.style.borderColor = '#20b2aa'}
+                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <button
+                    onClick={handleResetDates}
+                    style={{
+                      padding: '10px 20px',
+                      border: '2px solid #20b2aa',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      backgroundColor: 'white',
+                      color: '#20b2aa',
+                      transition: 'all 0.2s',
+                      width: '100%'
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.backgroundColor = '#20b2aa';
+                      e.target.style.color = 'white';
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.backgroundColor = 'white';
+                      e.target.style.color = '#20b2aa';
+                    }}
+                  >
+                    Reset Dates
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Data Summary */}
           <div style={{ 
@@ -317,8 +386,7 @@ const DataVisualizer = () => {
           height: '500px'
         }}>
           {chartData && filteredMetricsArray?.length > 0 ? (
-            <Line key={activeMetric} options={options} data={chartData} redraw={true} />
-            // <Bar key={activeMetric} options={options} data={chartData} redraw={true} />
+            <Bar key={activeMetric} options={options} data={chartData} redraw={true} />
           ) : (
             <div style={{ 
               display: 'flex', 
@@ -332,124 +400,6 @@ const DataVisualizer = () => {
             </div>
           )}
         </div>
-
-        {/* -- Moved Selector Pane (below chart) -- */}
-        <div style={{
-          marginTop: '20px',
-          background: 'linear-gradient(180deg, #ffffff 0%, #f7fbfb 100%)',
-          borderRadius: '12px',
-          boxShadow: '0 6px 18px rgba(32,178,170,0.08)',
-          padding: '18px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px'
-        }}>
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap'
-          }}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <label style={{ fontWeight: 700, color: '#234', marginRight: 6 }}>Metric</label>
-                <select
-                  value={activeMetric}
-                  onChange={handleMetricChange}
-                  aria-label="Select metric"
-                  style={{
-                    padding: '8px 12px',
-                    borderRadius: 10,
-                    border: '1px solid #e6f2f1',
-                    background: 'white',
-                    minWidth: 160,
-                    fontWeight: 600,
-                    color: '#0b4952'
-                  }}
-                >
-                  {availableMetrics.map(metric => (
-                    <option key={metric} value={metric}>
-                      {metric}
-                    </option>
-                  ))}
-                </select>              
-              {/* <select
-                value={activeMetric}
-                onChange={handleMetricChange}
-                aria-label="Select metric"
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: 10,
-                  border: '1px solid #e6f2f1',
-                  background: 'white',
-                  minWidth: 160,
-                  fontWeight: 600,
-                  color: '#0b4952'
-                }}
-              >
-                <option value="cnt">Counts</option>
-                <option value="min_dur">Min Duration</option>
-                <option value="max_dur">Max Duration</option>
-              </select> */}
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: 12, color: '#556' }}>Start</label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  style={{
-                    padding: '8px 10px',
-                    borderRadius: 10,
-                    border: '1px solid #e6f2f1',
-                    background: 'white'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: 12, color: '#556' }}>End</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  style={{
-                    padding: '8px 10px',
-                    borderRadius: 10,
-                    border: '1px solid #e6f2f1',
-                    background: 'white'
-                  }}
-                />
-              </div>
-
-              <button
-                onClick={handleResetDates}
-                style={{
-                  padding: '10px 14px',
-                  background: '#20b2aa',
-                  color: 'white',
-                  borderRadius: 10,
-                  border: 'none',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  boxShadow: '0 3px 8px rgba(32,178,170,0.18)'
-                }}
-              >
-                Reset Dates
-              </button>
-            </div>
-          </div>
-
-          <div style={{ fontSize: 13, color: '#667', display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div style={{ padding: '6px 12px', background: '#e9fbf9', color: '#037a6b', borderRadius: 18, fontWeight: 700 }}>
-              {filteredMetricsArray?.length || 0} records
-            </div>
-            {dateColumn && <div>Filtered by: <strong style={{ color: '#234' }}>{dateColumn}</strong></div>}
-          </div>
-        </div>
-
       </div>
     </div>
   );

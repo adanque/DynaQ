@@ -209,6 +209,7 @@ function App() {
           <Tab>Analytics Dashboard</Tab>
           <Tab>Would you like to Chat?</Tab>
           <Tab>Have a Rag Question?</Tab>
+          <Tab>Agentic Chat</Tab>
           <Tab>FAQ</Tab>
           <Tab>Forum</Tab>
         </TabList>
@@ -218,7 +219,7 @@ function App() {
           <h1>Dynamic Data Dashboards</h1>
             <div className="App">
                   <header className="App-header">
-                    <h1>Chart Data from SQLite</h1>
+                    <h2>Chart Data from SQLite</h2>
                   </header>
                   <main>
                     <DataVisualizer/>
@@ -300,6 +301,32 @@ function App() {
               <p>{ragResponse}</p>
             </div>
           )}
+        </TabPanel>
+
+        <TabPanel>
+          <div className="App">
+            <h1>DynaQ Agentic Chat</h1>
+            <div className="chat-window">
+              {messages.map((msg, index) => (
+                <div key={index} className={`message ${msg.sender} fade-in`}>
+                  {msg.text}
+                </div>
+              ))}
+              {isLoading && <div className="loading">Bot is thinking...</div>}
+            </div>
+            <form onSubmit={handleSend} className="input-area">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message..."
+                disabled={isLoading}
+              />
+              <button type="submit" disabled={isLoading || !input.trim()}>
+                ➤
+              </button>
+            </form>
+          </div>
         </TabPanel>
 
         <TabPanel>
