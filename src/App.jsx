@@ -213,7 +213,7 @@ function App() {
           <Tab>FAQ</Tab>
           <Tab>Forum</Tab>
         </TabList>
-
+        
 
         <TabPanel>
           <h1>Dynamic Data Dashboards</h1>
@@ -360,6 +360,7 @@ function App() {
           </ul>
         </TabPanel>
       </Tabs>
+      <button onClick={() => window.print()} style={{marginLeft:8}}>Print Page</button>
     </div>
   );
 }

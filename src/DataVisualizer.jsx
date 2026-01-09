@@ -4,6 +4,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 
 // import { Bar } from 'react-chartjs-2';
 import { Line } from 'react-chartjs-2';
+import { useRef } from 'react';   
 
 // ChartJS.register(
 //   CategoryScale,
@@ -37,7 +38,16 @@ const DataVisualizer = () => {
   const apidatakey = import.meta.env.VITE_AZURE_FUNCTION_SQLDATA_KEY;  
   const functionUrl = `https://dynaq.azurewebsites.net/api/dynaq_chart_data?code=${apidatakey}`;
   // const functionUrl = 'http://localhost:7071/api/dynaq_chart_data';
-  
+  const chartRef = useRef(null);
+
+  const handlePrintChart = () => {
+    const chartInst = chartRef.current;
+    if (!chartInst) return;
+    const toImage = chartInst.toBase64Image ? chartInst.toBase64Image() : chartInst.chartInstance?.toBase64Image?.();
+    if (!toImage) return;
+    const w = window.open('');
+    w.document.write(`<img src="${toImage}" onload="window.print();window.close();" />`);
+};
 
   const handleMetricChange = (e) => {
     setActiveMetric(e.target.value);
@@ -317,7 +327,8 @@ const DataVisualizer = () => {
           height: '500px'
         }}>
           {chartData && filteredMetricsArray?.length > 0 ? (
-            <Line key={activeMetric} options={options} data={chartData} redraw={true} />
+            // <Line key={activeMetric} options={options} data={chartData} redraw={true} />
+            <Line ref={chartRef} key={activeMetric} options={options} data={chartData} redraw={true} />
             // <Bar key={activeMetric} options={options} data={chartData} redraw={true} />
           ) : (
             <div style={{ 
@@ -372,7 +383,8 @@ const DataVisualizer = () => {
                       {metric}
                     </option>
                   ))}
-                </select>              
+                </select>
+                <button onClick={handlePrintChart} style={{padding:'8px 12px', marginLeft:8}}>Print Chart</button>              
               {/* <select
                 value={activeMetric}
                 onChange={handleMetricChange}
