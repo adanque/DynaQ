@@ -63,6 +63,46 @@ const DataVisualizer = () => {
     }
   };
 
+  const handleExportData = (format) => {
+    if (!filteredMetricsArray || filteredMetricsArray.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    let content, filename, mimeType;
+
+    if (format === 'json') {
+      content = JSON.stringify(filteredMetricsArray, null, 2);
+      filename = `chart-data-${new Date().toISOString().split('T')[0]}.json`;
+      mimeType = 'application/json';
+    } else if (format === 'csv') {
+      const keys = Object.keys(filteredMetricsArray[0]);
+      const csvHeaders = keys.join(',');
+      const csvRows = filteredMetricsArray.map(row =>
+        keys.map(key => {
+          const val = row[key];
+          // Escape quotes and wrap in quotes if contains comma
+          return typeof val === 'string' && val.includes(',') ? `"${val.replace(/"/g, '""')}"` : val;
+        }).join(',')
+      );
+      content = [csvHeaders, ...csvRows].join('\n');
+      filename = `chart-data-${new Date().toISOString().split('T')[0]}.csv`;
+      mimeType = 'text/csv';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+
+
   // Filter data based on date range
   const filteredMetricsArray = useMemo(() => {
     if (!metricsArray || !dateColumn) return metricsArray;
@@ -444,13 +484,46 @@ const DataVisualizer = () => {
                   color: 'white',
                   borderRadius: 10,
                   border: 'none',
-                  fontWeight: 700,
+                  fontWeight: 200,
                   cursor: 'pointer',
                   boxShadow: '0 3px 8px rgba(32,178,170,0.18)'
                 }}
               >
                 Reset Dates
               </button>
+              <button
+                onClick={() => handleExportData('csv')}
+                style={{
+                  padding: '10px 14px',
+                  background: '#17a2b8',
+                  color: 'white',
+                  borderRadius: 10,
+                  border: 'none',
+                  fontWeight: 200,
+                  cursor: 'pointer',
+                  boxShadow: '0 3px 8px rgba(23,162,184,0.18)',
+                  marginLeft: '8px'
+                }}
+              >
+                CSV
+              </button>
+
+              <button
+                onClick={() => handleExportData('json')}
+                style={{
+                  padding: '10px 14px',
+                  background: '#6c757d',
+                  color: 'white',
+                  borderRadius: 10,
+                  border: 'none',
+                  fontWeight: 200,
+                  cursor: 'pointer',
+                  boxShadow: '0 3px 8px rgba(108,117,125,0.18)',
+                  marginLeft: '8px'
+                }}
+              >
+                JSON
+              </button>              
             </div>
           </div>
 
