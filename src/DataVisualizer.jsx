@@ -492,7 +492,8 @@ const DataVisualizer = () => {
                 Reset Dates
               </button>
               <button
-                onClick={() => handleExportData('csv')}
+                // enable to allow download
+                // onClick={() => handleExportData('csv')}
                 style={{
                   padding: '10px 14px',
                   background: '#17a2b8',
@@ -509,7 +510,8 @@ const DataVisualizer = () => {
               </button>
 
               <button
-                onClick={() => handleExportData('json')}
+                // enable to allow download              
+                // onClick={() => handleExportData('json')}
                 style={{
                   padding: '10px 14px',
                   background: '#6c757d',
