@@ -100,8 +100,8 @@ function App() {
     setIsLoading(true);
 
     try {
-
-      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {
+      // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {
+      const response = await fetch(`http://localhost:7071/api/dynaq_chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage.text }),
@@ -120,6 +120,82 @@ function App() {
     }
   };
 
+  // const handleSend_agentic_ai = async () => {
+  //   if (!input.trim()) return;
+
+  //   // Add user message to chat
+  //   const newMessages = [...messages, { sender: 'user', text: input }];
+  //   setMessages(newMessages);
+  //   setInput('');
+  //   setIsLoading(true);
+
+  //   try {
+
+  //     const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ query: newMessages.text }),
+  //     });
+
+  //     // const response = await axios.post(apiEndpoint, { query: input }, {
+  //     //   headers: { 'Content-Type': 'application/json' }
+  //     // });
+  //     const aiResponse = response.data.response || 'No response received';
+
+  //     // Add AI message to chat
+  //     setMessages([...newMessages, { sender: 'ai', text: aiResponse }]);
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //     setMessages([...newMessages, { sender: 'ai', text: 'Error: Could not get response from AI.' }]);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+  
+  const handleSend_agentic_ai = async (e) => {
+    e.preventDefault(); // Prevent form submission reload
+    if (!input.trim()) return;
+
+    const userMessage = { text: input, sender: 'user' };
+    setMessages([...messages, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      // const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
+      const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: userMessage.text , session_id: 'optional' }),
+      });
+
+      if (!response.ok) throw new Error('API request failed');
+
+      const data = await response.json();
+      const aiResponse = data.result || 'No response received';
+      // const aiResponse = { text: data.reply || 'No response received' };
+      // Add AI message to chat
+      setMessages((prev) => [...prev, { sender: 'ai', text: aiResponse }]);
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages((prev) => [...prev, { sender: 'ai', text: 'Error: Could not get response from AI.' }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+// fetch('/api/agentic_ai', {
+//   method: 'POST',
+//   headers: { 'Content-Type': 'application/json' },
+//   body: JSON.stringify({ query: 'your query', session_id: 'optional' })
+// })
+// .then(res => res.json())
+// .then(data => {
+//   console.log('Agent response:', data.result);  // This contains "Final Answer: [answer]"
+//   // Update your UI with data.result
+// })
+// .catch(err => console.error('Error:', err));
 
 
   // Existing useEffect for mobile detection
@@ -159,7 +235,7 @@ function App() {
 
 // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {      
     try {
-
+      // const response = await fetch(`http://localhost:7071/api/dynaq_rag_ai`, {
       const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {
         method: 'POST',
         body: formData,        
@@ -314,7 +390,7 @@ function App() {
               ))}
               {isLoading && <div className="loading">Bot is thinking...</div>}
             </div>
-            <form onSubmit={handleSend} className="input-area">
+            <form onSubmit={handleSend_agentic_ai} className="input-area">
               <input
                 type="text"
                 value={input}
