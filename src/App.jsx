@@ -61,6 +61,9 @@ function App() {
   const [uploadStatus, setUploadStatus] = useState('');
   const [ragResponse, setRagResponse] = useState('');
 
+  // State for username in Agentic Chat
+  const [username, setUsername] = useState('');
+
   // Sample data for analytics chart
   const chartSData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
@@ -166,7 +169,7 @@ function App() {
       // const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: userMessage.text , session_id: 'optional' }),
+        body: JSON.stringify({ query: userMessage.text, session_id: 'optional', username }),
       });
 
       if (!response.ok) throw new Error('API request failed');
@@ -382,6 +385,13 @@ function App() {
         <TabPanel>
           <div className="App">
             <h1>DynaQ Agentic Chat</h1>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username..."
+              style={{ marginBottom: '10px', width: '100%', padding: '8px' }}
+            />
             <div className="chat-window">
               {messages.map((msg, index) => (
                 <div key={index} className={`message ${msg.sender} fade-in`}>
