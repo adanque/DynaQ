@@ -100,8 +100,8 @@ function App() {
     setIsLoading(true);
 
     try {
-      // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {
-      const response = await fetch(`http://localhost:7071/api/dynaq_chat`, {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {
+      // const response = await fetch(`http://localhost:7071/api/dynaq_chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage.text }),
@@ -162,8 +162,8 @@ function App() {
     setIsLoading(true);
 
     try {
-      // const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
-      const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
+      // const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userMessage.text , session_id: 'optional' }),
