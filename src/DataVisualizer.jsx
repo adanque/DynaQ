@@ -164,11 +164,13 @@ const DataVisualizer = () => {
         if (dateCol) {
           setDateColumn(dateCol);
           // Set default date range to show all data
-          const dates = metricsArray.map(item => new Date(item[dateCol]));
-          const minDate = new Date(Math.min(...dates));
-          const maxDate = new Date(Math.max(...dates));
-          setStartDate(minDate.toISOString().split('T')[0]);
-          setEndDate(maxDate.toISOString().split('T')[0]);
+          const validDates = metricsArray.map(item => new Date(item[dateCol])).filter(d => !isNaN(d.getTime()));
+          if (validDates.length > 0) {
+            const minDate = new Date(Math.min(...validDates));
+            const maxDate = new Date(Math.max(...validDates));
+            setStartDate(minDate.toISOString().split('T')[0]);
+            setEndDate(maxDate.toISOString().split('T')[0]);
+          }
         }
 
         setMetricsArray(metricsArray);
@@ -225,7 +227,10 @@ const DataVisualizer = () => {
 
     // unique, sorted dates (use ISO date string for consistent matching)
     const uniqueDates = Array.from(new Set(
-      filteredMetricsArray.map(i => new Date(i[dateKey]).toISOString().split('T')[0])
+      filteredMetricsArray.map(i => {
+        const d = new Date(i[dateKey]);
+        return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
+      }).filter(d => d !== null)
     )).sort((a, b) => new Date(a) - new Date(b));
 
     // unique series names (full label text)
@@ -240,10 +245,11 @@ const DataVisualizer = () => {
     // build datasets: for each series, map values onto the master date axis
     const datasets = seriesNames.map((name, idx) => {
       const data = uniqueDates.map(d => {
-        const found = filteredMetricsArray.find(item =>
-          item[labelKey] === name &&
-          new Date(item[dateKey]).toISOString().split('T')[0] === d
-        );
+        const found = filteredMetricsArray.find(item => {
+          if (item[labelKey] !== name) return false;
+          const itemDate = new Date(item[dateKey]);
+          return !isNaN(itemDate.getTime()) && itemDate.toISOString().split('T')[0] === d;
+        });
         return found ? Number(found[activeMetric]) : null;
       });
 

@@ -91,6 +91,13 @@ h1 {
   margin-right: auto;
 }
 
+.ai {
+  background: #28a745;
+  color: white;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
 .fade-in {
   animation: fadeIn 0.3s ease-in;
 }
