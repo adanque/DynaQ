@@ -441,7 +441,7 @@ function App() {
       </div>
 
       {/* Right Information Status Bar */}
-      <div style={{ width: '120px', background: '#f0f0f0', padding: '10px', borderLeft: '1px solid #ccc', overflowY: 'auto' }}>
+      <div style={{ width: '120px', background: '#f0f0f0', padding: '10px', borderLeft: '1px solid #ccc', overflowY: 'auto', color: 'black' }}>
         <h3>Status</h3>
         <p><strong>User:</strong> {username || 'Not set'}</p>
         <p><strong>Active Tab:</strong> {['Analytics Dashboard', 'Chat', 'RAG Upload', 'Agentic Chat', 'FAQ', 'Forum'][selectedTab]}</p>
