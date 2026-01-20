@@ -170,6 +170,13 @@ button:disabled {
     background: white !important;
     color: #222 !important;
   }
+  .react-tabs__tab-panel {
+    color: #222 !important;
+    background: #f0f0f0 !important;
+  }
+  .react-tabs__tab-panel * {
+    color: #222 !important;
+  }
   /* Sidebars and status bar */
   [style*="background: #f0f0f0"] {
     background: #f0f0f0 !important;
