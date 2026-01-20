@@ -285,12 +285,13 @@ function App() {
         <li><button onClick={() => setSelectedTab(1)} style={{ width: '100%', marginBottom: '5px' }}>Chat</button></li>
         <li><button onClick={() => setSelectedTab(2)} style={{ width: '100%', marginBottom: '5px' }}>RAG Upload</button></li>
         <li><button onClick={() => setSelectedTab(3)} style={{ width: '100%', marginBottom: '5px' }}>Agentic Chat</button></li>
-        <li><button onClick={() => setSelectedTab(4)} style={{ width: '100%', marginBottom: '5px' }}>FAQ</button></li>
-        <li><button onClick={() => setSelectedTab(5)} style={{ width: '100%', marginBottom: '5px' }}>Forum</button></li>
+        <li><button onClick={() => setSelectedTab(4)} style={{ width: '100%', marginBottom: '5px' }}>PDF Extraction using VLM LLM</button></li>
+        <li><button onClick={() => setSelectedTab(5)} style={{ width: '100%', marginBottom: '5px' }}>FAQ</button></li>
+        <li><button onClick={() => setSelectedTab(6)} style={{ width: '100%', marginBottom: '5px' }}>Forum</button></li>
         </ul>
       </div>
       {/* Center Content (Tabs) */}
-      <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+      <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f0f0f0' }}>
         <h1>DynaQ Tools</h1>
         {isMobile && (
           <button onClick={toggleFullScreen} style={{ marginBottom: '10px' }}>
@@ -303,6 +304,7 @@ function App() {
             <Tab>Would you like to Chat?</Tab>
             <Tab>Have a Rag Question?</Tab>
             <Tab>Agentic Chat</Tab>
+            <Tab>PDF Extraction using VLM LLM</Tab>
             <Tab>FAQ</Tab>
             <Tab>Forum</Tab>
           </TabList>
@@ -405,6 +407,21 @@ function App() {
                 </button>
               </form>
             </div>
+          </TabPanel>
+
+          <TabPanel>
+            <h2>PDF Extraction using VLM LLM</h2>
+            <p>This tab shares static README content.</p>
+            <p>Below is an example markdown-rendered as text:</p>
+            <pre style={{ background: '#f4f4f4', padding: '5px' }}>
+              # Project README
+              ## Overview
+              <ul>This is a sample project.</ul>
+              <ul>## Installation</ul>
+              <ul>1. Clone the repo</ul>
+              <ul>2. Run `npm install`</ul>
+              <ul>3. Start with `npm run dev`</ul>
+            </pre>
           </TabPanel>
 
           <TabPanel>
