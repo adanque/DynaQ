@@ -176,8 +176,8 @@ function App() {
     setIsLoading(true);
 
     try {
-      // const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
-      const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
+      // const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userMessage.text, session_id: 'optional', username }),
@@ -333,8 +333,8 @@ function App() {
     const formData = new FormData();
     formData.append('pdf', pdfFile);
     try {
-      // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {      
-      const response = await fetch(`http://localhost:7071/api/dynaq_ai_pdf_extracter`, {
+      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {      
+      // const response = await fetch(`http://localhost:7071/api/dynaq_ai_pdf_extracter`, {
         method: 'POST',
         body: formData,        
       });
