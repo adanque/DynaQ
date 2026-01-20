@@ -1,6 +1,7 @@
 // npm install axios chart.js react-chartjs-2
 // console.log("Server is starting up!");
 // import { useState } from 'react';
+import { Document, Page } from 'react-pdf';
 import { useState, useEffect } from 'react';
 import DataVisualizer from './DataVisualizer';
 import './App.css';
@@ -21,6 +22,13 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
+// import { pdfjs } from 'react-pdf';
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
 
 // Register Chart.js components
 ChartJS.register(
@@ -60,6 +68,9 @@ function App() {
   const [question, setQuestion] = useState(''); // This declares 'question' – critical fix if missing
   const [uploadStatus, setUploadStatus] = useState('');
   const [ragResponse, setRagResponse] = useState('');
+  
+  // URL for uploaded PDF for AI PDF Extraction
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   // State for username in Agentic Chat
   const [username, setUsername] = useState('');
@@ -165,8 +176,8 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
-      // const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
+      // const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
+      const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userMessage.text, session_id: 'optional', username }),
@@ -263,6 +274,82 @@ function App() {
       setRagResponse('');
     }
   };  
+
+//     const handlePdfUploadExtraction = async () => {
+//     if (!pdfFile) {
+//       setUploadStatus('Please select a PDF file.');
+//       return;
+//     }
+
+
+//     setUploadStatus('Uploading...');
+//     const formData = new FormData();
+//     formData.append('pdf', pdfFile); // File upload
+//     if (question.trim()) {
+//       formData.append('question', question); // Append question as a string field
+//     }
+
+//       // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {
+//       //   method: 'POST',
+//       //   headers: { 'Content-Type': 'application/json' },
+//       //   body: JSON.stringify({ message: userMessage.text }),
+//       // });
+
+// // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_chat?code=${apikey}`, {      
+//     try {
+//       const response = await fetch(`http://localhost:7071/api/dynaq_ai_pdf_extracter`, {
+//       // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {
+//         method: 'POST',
+//         body: formData,        
+//       });
+
+//         // method: 'POST',
+//         // headers: { 'Content-Type': 'application/json' },
+//         // body: JSON.stringify({ message: formData }),
+
+
+//       if (!response.ok) {
+//         throw new Error('Upload failed');
+//       }
+
+
+//       const data = await response.json(); // Assume backend returns JSON with 'response' field
+//       setRagResponse(data.response || 'RAG processing complete.');
+//       setUploadStatus('Upload successful!');
+//       setQuestion(''); // Optional: Clear question after success
+//     } catch (error) {
+//       setUploadStatus('Error: ' + error.message);
+//       setRagResponse('');
+//     }
+//   };  
+
+  const handlePdfUploadExtraction = async () => {
+    if (!pdfFile) {
+      setUploadStatus('Please select a PDF file.');
+      return;
+    }
+    setUploadStatus('Uploading...');
+    setRagResponse(''); // Clear extracted details when button is clicked
+    const formData = new FormData();
+    formData.append('pdf', pdfFile);
+    try {
+      // const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {      
+      const response = await fetch(`http://localhost:7071/api/dynaq_ai_pdf_extracter`, {
+        method: 'POST',
+        body: formData,        
+      });
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      setRagResponse(data.response || 'RAG processing complete.');
+      setUploadStatus('Upload successful!');
+      setQuestion('');
+      // Set PDF URL for viewing
+      setPdfUrl(URL.createObjectURL(pdfFile));
+    } catch (error) {
+      setUploadStatus('Error: ' + error.message);
+      setRagResponse('');
+    }
+  };
 
   // Existing toggleFullScreen
   const toggleFullScreen = () => {
@@ -411,18 +498,41 @@ function App() {
 
           <TabPanel>
             <h2>PDF Extraction using VLM LLM</h2>
-            <p>This tab shares static README content.</p>
-            <p>Below is an example markdown-rendered as text:</p>
-            <pre style={{ background: '#f4f4f4', padding: '5px' }}>
-              # Project README
-              ## Overview
-              <ul>This is a sample project.</ul>
-              <ul>## Installation</ul>
-              <ul>1. Clone the repo</ul>
-              <ul>2. Run `npm install`</ul>
-              <ul>3. Start with `npm run dev`</ul>
-            </pre>
-          </TabPanel>
+            <p>Upload a PDF.</p>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => {
+                setPdfFile(e.target.files?.[0] || null);
+                setPdfUrl(null); // Reset viewer on new file
+              }}
+              style={{ margin: '10px 0', display: 'block' }}
+            />
+            <button onClick={handlePdfUploadExtraction}>Upload PDF and Commence PO Details Extraction</button>
+            {uploadStatus && <p>{uploadStatus}</p>}
+            {ragResponse && (
+              <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
+                <h3>Extracted Details:</h3>
+                <p>{ragResponse}</p>
+              </div>
+            )}
+            {/* PDF Viewer */}
+            {pdfUrl && (
+              <div style={{ height: '600px' }}>
+                <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+                  <Viewer fileUrl={pdfUrl} />
+                </Worker>
+              </div>
+            )}            
+            {/* {pdfUrl && (
+              <div style={{ marginTop: '20px' }}>
+                <h4>PDF Preview:</h4>
+                <Document file={pdfUrl}>
+                  <Page pageNumber={1} />
+                </Document>
+              </div>
+            )} */}
+          </TabPanel>          
 
           <TabPanel>
             <h2>Readme Materials</h2>
