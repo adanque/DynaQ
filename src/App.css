@@ -157,6 +157,26 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Mobile color scheme match for browser styles */
+@media (max-width: 800px) {
+  body, #root, .App {
+    background: #f0f0f0 !important;
+    color: #222 !important;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    color: #222 !important;
+  }
+  .chat-window, .input-area, button {
+    background: white !important;
+    color: #222 !important;
+  }
+  /* Sidebars and status bar */
+  [style*="background: #f0f0f0"] {
+    background: #f0f0f0 !important;
+    color: #222 !important;
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .App { margin: 20px; padding: 15px; }
