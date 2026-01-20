@@ -165,8 +165,8 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
-      // const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
+      // const response = await fetch(`https://dynaq.azurewebsites.net/api/agentic_ai?code=${apikey}`, {
+      const response = await fetch(`http://localhost:7071/api/agentic_ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userMessage.text, session_id: 'optional', username }),
@@ -276,179 +276,181 @@ function App() {
   // if (loading) return <p>Loading...</p>;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>DynaQ Tools</h1>
-      {isMobile && (
-        <button onClick={toggleFullScreen} style={{ marginBottom: '10px' }}>
-          Toggle Full Screen
-        </button>
-      )}      
-      <Tabs selectedIndex={selectedTab} onSelect={(index) => setSelectedTab(index)}>
-        <TabList>
-          <Tab>Analytics Dashboard</Tab>
-          <Tab>Would you like to Chat?</Tab>
-          <Tab>Have a Rag Question?</Tab>
-          <Tab>Agentic Chat</Tab>
-          <Tab>FAQ</Tab>
-          <Tab>Forum</Tab>
-        </TabList>
-        
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      {/* Left Navigation Bar */}
+      <div style={{ width: '120px', background: '#f0f0f0', padding: '10px', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
+        <h3>Navigation</h3>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <li><button onClick={() => setSelectedTab(0)} style={{ width: '100%', marginBottom: '5px' }}>Dashboard</button></li>
+        <li><button onClick={() => setSelectedTab(1)} style={{ width: '100%', marginBottom: '5px' }}>Chat</button></li>
+        <li><button onClick={() => setSelectedTab(2)} style={{ width: '100%', marginBottom: '5px' }}>RAG Upload</button></li>
+        <li><button onClick={() => setSelectedTab(3)} style={{ width: '100%', marginBottom: '5px' }}>Agentic Chat</button></li>
+        <li><button onClick={() => setSelectedTab(4)} style={{ width: '100%', marginBottom: '5px' }}>FAQ</button></li>
+        <li><button onClick={() => setSelectedTab(5)} style={{ width: '100%', marginBottom: '5px' }}>Forum</button></li>
+        </ul>
+      </div>
+      {/* Center Content (Tabs) */}
+      <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+        <h1>DynaQ Tools</h1>
+        {isMobile && (
+          <button onClick={toggleFullScreen} style={{ marginBottom: '10px' }}>
+            Toggle Full Screen
+          </button>
+        )}
+        <Tabs selectedIndex={selectedTab} onSelect={(index) => setSelectedTab(index)}>
+          <TabList>
+            <Tab>Analytics Dashboard</Tab>
+            <Tab>Would you like to Chat?</Tab>
+            <Tab>Have a Rag Question?</Tab>
+            <Tab>Agentic Chat</Tab>
+            <Tab>FAQ</Tab>
+            <Tab>Forum</Tab>
+          </TabList>
 
-        <TabPanel>
-          <h1>Dynamic Data Dashboards</h1>
+          <TabPanel>
+            <h1>Dynamic Data Dashboards</h1>
             <div className="App">
-                  <header className="App-header">
-                    <h2>Chart Data from SQLite</h2>
-                  </header>
-                  <main>
-                    <DataVisualizer/>
-                  </main>
-            </div>          
-            {/* <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-              <h1>Dynamic Metrics Dashboard</h1>
-              {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-              {loading ? (
-                <p>Loading data...</p>
-              ) : visualization ? (
-                visualization.type === 'chart' ? (
-                  <Bar
-                    data={visualization.data}
-                    options={{
-                      responsive: true,
-                      plugins: { legend: { position: 'top' }, title: { display: true, text: 'Dynamic Metrics' } },
-                    }}
-                  />
-                ) : (
-                  renderTable(visualization)
-                )
-              ) : (
-                <p>No suitable data for visualization.</p>
-              )}
-            </div>           */}
-
-          <h2>Analytics Dashboard</h2>
-          <p>Static chart showing sample user data.</p>
-          <Line data={chartSData} options={{ responsive: true }} />
-        </TabPanel>
-        <TabPanel>
-          <div className="App">
-            <h1>DynaQ Chat</h1>
-            <div className="chat-window">
-              {messages.map((msg, index) => (
-                <div key={index} className={`message ${msg.sender} fade-in`}>
-                  {msg.text}
-                </div>
-              ))}
-              {isLoading && <div className="loading">Bot is thinking...</div>}
+              <header className="App-header">
+                <h2>Chart Data from SQLite</h2>
+              </header>
+              <main>
+                <DataVisualizer/>
+              </main>
             </div>
-            <form onSubmit={handleSend} className="input-area">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your message..."
-                disabled={isLoading}
-              />
-              <button type="submit" disabled={isLoading || !input.trim()}>
-                ➤
-              </button>
-            </form>
-          </div>
-        </TabPanel>
-        
-        <TabPanel>
-          <h2>RAG PDF Upload Example</h2>
-          <p>Upload a PDF and optionally provide a question to process with a backend RAG model.</p>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-            style={{ margin: '10px 0', display: 'block' }}
-          />
-          <input
-            type="text"
-            value={question} // References 'question' state here
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Enter a question (optional)"
-            style={{ margin: '10px 0', width: '100%' }} // New input for question
-          />
-          <button onClick={handlePdfUpload}>Upload PDF and Process</button>
-          {uploadStatus && <p>{uploadStatus}</p>}
-          {ragResponse && (
-            <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
-              <h3>RAG Response:</h3>
-              <p>{ragResponse}</p>
-            </div>
-          )}
-        </TabPanel>
+            <h2>Analytics Dashboard</h2>
+            <p>Static chart showing sample user data.</p>
+            <Line data={chartSData} options={{ responsive: true }} />
+          </TabPanel>
 
-        <TabPanel>
-          <div className="App">
-            <h1>DynaQ Agentic Chat</h1>
+          <TabPanel>
+            <div className="App">
+              <h1>DynaQ Chat</h1>
+              <div className="chat-window">
+                {messages.map((msg, index) => (
+                  <div key={index} className={`message ${msg.sender} fade-in`}>
+                    {msg.text}
+                  </div>
+                ))}
+                {isLoading && <div className="loading">Bot is thinking...</div>}
+              </div>
+              <form onSubmit={handleSend} className="input-area">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type your message..."
+                  disabled={isLoading}
+                />
+                <button type="submit" disabled={isLoading || !input.trim()}>
+                  ➤
+                </button>
+              </form>
+            </div>
+          </TabPanel>
+
+          <TabPanel>
+            <h2>RAG PDF Upload Example</h2>
+            <p>Upload a PDF and optionally provide a question to process with a backend RAG model.</p>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+              style={{ margin: '10px 0', display: 'block' }}
+            />
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username..."
-              style={{ marginBottom: '10px', width: '100%', padding: '8px' }}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Enter a question (optional)"
+              style={{ margin: '10px 0', width: '100%' }}
             />
-            <div className="chat-window">
-              {messages.map((msg, index) => (
-                <div key={index} className={`message ${msg.sender} fade-in`}>
-                  {msg.text}
-                </div>
-              ))}
-              {isLoading && <div className="loading">Bot is thinking...</div>}
-            </div>
-            <form onSubmit={handleSend_agentic_ai} className="input-area">
+            <button onClick={handlePdfUpload}>Upload PDF and Process</button>
+            {uploadStatus && <p>{uploadStatus}</p>}
+            {ragResponse && (
+              <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
+                <h3>RAG Response:</h3>
+                <p>{ragResponse}</p>
+              </div>
+            )}
+          </TabPanel>
+
+          <TabPanel>
+            <div className="App">
+              <h1>DynaQ Agentic Chat</h1>
               <input
                 type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your message..."
-                disabled={isLoading}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username..."
+                style={{ marginBottom: '10px', width: '100%', padding: '8px' }}
               />
-              <button type="submit" disabled={isLoading || !input.trim()}>
-                ➤
-              </button>
-            </form>
-          </div>
-        </TabPanel>
+              <div className="chat-window">
+                {messages.map((msg, index) => (
+                  <div key={index} className={`message ${msg.sender} fade-in`}>
+                    {msg.text}
+                  </div>
+                ))}
+                {isLoading && <div className="loading">Bot is thinking...</div>}
+              </div>
+              <form onSubmit={handleSend_agentic_ai} className="input-area">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type your message..."
+                  disabled={isLoading}
+                />
+                <button type="submit" disabled={isLoading || !input.trim()}>
+                  ➤
+                </button>
+              </form>
+            </div>
+          </TabPanel>
 
-        <TabPanel>
-          <h2>Readme Materials</h2>
-          <p>This tab shares static README content.</p> 
-          <p>Below is an example markdown-rendered as text:</p>
-          <pre style={{ background: '#f4f4f4', padding: '5px' }}>
-            # Project README
-            ## Overview
-            <ul>This is a sample project.</ul>
-            <ul>## Installation</ul>
-            <ul>1. Clone the repo</ul>
-            <ul>2. Run `npm install`</ul>
-            <ul>3. Start with `npm run dev`</ul>
-            
-          </pre>
-        </TabPanel>
+          <TabPanel>
+            <h2>Readme Materials</h2>
+            <p>This tab shares static README content.</p>
+            <p>Below is an example markdown-rendered as text:</p>
+            <pre style={{ background: '#f4f4f4', padding: '5px' }}>
+              # Project README
+              ## Overview
+              <ul>This is a sample project.</ul>
+              <ul>## Installation</ul>
+              <ul>1. Clone the repo</ul>
+              <ul>2. Run `npm install`</ul>
+              <ul>3. Start with `npm run dev`</ul>
+            </pre>
+          </TabPanel>
 
-        <TabPanel>
-          <h2>Forum</h2>
-          <p>Static forum posts example (add dynamic features with a backend if needed).</p>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li>
-              <strong>Post 1:</strong> How do I get started? <br />
-              <em>Reply: Check the README tab.</em>
-            </li>
-            <li>
-              <strong>Post 2:</strong> Feature request: Add more charts. <br />
-              <em>Reply: Noted, thanks!</em>
-            </li>
-          </ul>
-        </TabPanel>
-      </Tabs>
-      <button onClick={() => window.print()} style={{marginLeft:8}}>Print Page</button>
+          <TabPanel>
+            <h2>Forum</h2>
+            <p>Static forum posts example (add dynamic features with a backend if needed).</p>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              <li>
+                <strong>Post 1:</strong> How do I get started? <br />
+                <em>Reply: Check the README tab.</em>
+              </li>
+              <li>
+                <strong>Post 2:</strong> Feature request: Add more charts. <br />
+                <em>Reply: Noted, thanks!</em>
+              </li>
+            </ul>
+          </TabPanel>
+        </Tabs>
+        <button onClick={() => window.print()} style={{ marginLeft: '8px' }}>Print Page</button>
+      </div>
+
+      {/* Right Information Status Bar */}
+      <div style={{ width: '120px', background: '#f0f0f0', padding: '10px', borderLeft: '1px solid #ccc', overflowY: 'auto' }}>
+        <h3>Status</h3>
+        <p><strong>User:</strong> {username || 'Not set'}</p>
+        <p><strong>Active Tab:</strong> {['Analytics Dashboard', 'Chat', 'RAG Upload', 'Agentic Chat', 'FAQ', 'Forum'][selectedTab]}</p>
+        <p><strong>Messages:</strong> {messages.length}</p>
+        {/* Add more status info, e.g., notifications, system health */}
+      </div>
     </div>
-  );
+  );  
+
 }
 
 
