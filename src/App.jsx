@@ -62,6 +62,7 @@ function App() {
   // const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY
   const apikey = import.meta.env.VITE_AZURE_FUNCTION_KEY;
   const apiragkey = import.meta.env.VITE_AZURE_FUNCTION_RAG_KEY;
+  const apiragkey1 = import.meta.env.VITE_AZURE_FUNCTION_RAG_KEY_1;
 
   // New state for RAG upload
   const [pdfFile, setPdfFile] = useState(null);
@@ -333,7 +334,7 @@ function App() {
     const formData = new FormData();
     formData.append('pdf', pdfFile);
     try {
-      const response = await fetch(`https://dynaq.azurewebsites.net/api/dynaq_rag_ai?code=${apiragkey}`, {      
+      const response = await fetch(`https://dynaq1.azurewebsites.net/api/dynaq_ai_pdf_extracter?code=${apiragkey1}`, {      
       // const response = await fetch(`http://localhost:7071/api/dynaq_ai_pdf_extracter`, {
         method: 'POST',
         body: formData,        
