@@ -105,6 +105,14 @@ function App() {
     </table>
   );  
 
+  function handleLogoff() {
+    // Clear authentication tokens or user data
+    localStorage.removeItem('authToken'); // adjust key as needed
+    // Redirect to login or home
+    window.location.href = '/login'; // adjust path as needed
+  }
+
+
   const handleSend = async (e) => {
     e.preventDefault(); // Prevent form submission reload
     if (!input.trim()) return;
@@ -365,6 +373,14 @@ function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+
+      {/* Top Navbar/Header */}
+      {/* <div style={{ width: '100%', background: '#e0e0e0', padding: '10px 0', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', position: 'fixed', top: 0, left: 0, zIndex: 1000 }}>
+        <button onClick={handleLogoff} style={{ marginRight: '32px', padding: '0.5rem 1.2rem', borderRadius: '4px', border: 'none', background: '#444', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>Logoff</button>
+      </div> */}
+      {/* Main Layout */}
+      {/* <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', marginTop: '48px' }}></div> */}
+      
       {/* Left Navigation Bar */}
       <div style={{ width: '120px', background: '#f0f0f0', padding: '10px', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
         <h3>Navigation</h3>
@@ -376,6 +392,7 @@ function App() {
         <li><button onClick={() => setSelectedTab(4)} style={{ width: '100%', marginBottom: '5px' }}>PDF Extraction using VLM LLM</button></li>
         <li><button onClick={() => setSelectedTab(5)} style={{ width: '100%', marginBottom: '5px' }}>FAQ</button></li>
         <li><button onClick={() => setSelectedTab(6)} style={{ width: '100%', marginBottom: '5px' }}>Forum</button></li>
+        <li><button onClick={handleLogoff}>Logoff</button></li>
         </ul>
       </div>
       {/* Center Content (Tabs) */}
